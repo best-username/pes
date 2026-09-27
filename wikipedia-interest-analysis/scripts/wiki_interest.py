@@ -146,6 +146,11 @@ def rnd(value, digits=1):
     return None if value is None else (round(value, digits) or 0.0)
 
 
+def rnd_per_million(value):
+    """Two decimals from 1 upward, three below: 133.18, never 133.177, which reads like 133,177."""
+    return None if value is None else rnd(value, 2 if abs(value) >= 1 else 3)
+
+
 def pct_change(new, old):
     return (new - old) / old * 100 if old else None
 
@@ -206,13 +211,15 @@ def consistency_reasons(m, aligned):
     if direction == "flat":
         return [f"views changed by {growth:+.1f}%, within +-{FLAT_BAND_PCT:g}%: no meaningful upward or downward trend to assess"]
     side, move = ("above", "increase") if direction == "up" else ("below", "decrease")
-    without = (f"without its biggest contributing month ({m['top_contributor_month']}) the change would be "
-               f"{m['growth_excl_top_month_pct']:+.1f}%")
+    without = (f"without {m['top_contributor_month']} — the month whose year-over-year change contributed most "
+               "to the 12-month change — the overall change would")
+    change = f"{m['growth_excl_top_month_pct']:+.1f}%"
     if m["spike_driven"]:
         lowered = " (label lowered one level)" if aligned >= MIXED_MIN_ALIGNED_MONTHS else ""
-        robustness = f"robustness: {without}, no longer a meaningful {move}, so the trend depends on that one month{lowered}"
+        robustness = (f"robustness: {without} be {change}, no longer a meaningful {move}, so the trend depends on "
+                      f"that one month{lowered}")
     else:
-        robustness = f"robustness: {without}, so the trend does not depend on one month"
+        robustness = f"robustness: {without} still be {change}, so the trend does not depend on one month"
     return [f"breadth: {aligned} of 12 months {side} the same month a year earlier "
             f"(strong needs {STRONG_MIN_ALIGNED_MONTHS}+, mixed {MIXED_MIN_ALIGNED_MONTHS}+)", robustness]
 
@@ -276,7 +283,8 @@ def language_metrics(views, project, months):
         latest_share = latest_sum / project_latest * 1_000_000 if project_latest else None
         out.update(previous_12m_project_views=project_prev, latest_12m_project_views=project_latest,
                    project_growth_pct=rnd(pct_change(project_latest, project_prev)),
-                   previous_topic_views_per_million=rnd(prev_share, 3), latest_topic_views_per_million=rnd(latest_share, 3))
+                   previous_topic_views_per_million=rnd_per_million(prev_share),
+                   latest_topic_views_per_million=rnd_per_million(latest_share))
         if prev_share and latest_share is not None:
             out["topic_share_growth_pct"] = rnd((latest_share / prev_share - 1) * 100)
 
@@ -532,13 +540,10 @@ def fmt_pct(p):
 
 
 def fmt_share(v):
+    """Views per million exactly as published in result.json."""
     if v is None:
         return "—"
-    if v >= 100:
-        return f"{v:,.0f}"
-    if v >= 1:
-        return f"{v:.1f}" if v >= 10 else f"{v:.2f}"
-    return f"{v:.3g}" if v >= 0.0001 else "<0.0001"
+    return f"{v:,.2f}" if abs(v) >= 1 else f"{v:.3f}"
 
 
 def fmt_axis(v):
@@ -753,13 +758,14 @@ def evidence_table(rows):
                     f'{consistency.replace("_", " ")}</th>{cells}</tr>')
     head = ('<tr><th scope="col">Language · consistency</th><th scope="col">Months moving with the trend '
             '(vs the same month a year earlier)</th>'
-            '<th scope="col">Biggest contributing month</th><th scope="col" class="num">Change without that month</th>'
+            '<th scope="col">Largest contributor to change</th><th scope="col" class="num">Change without that month</th>'
             '<th scope="col">Depends on one month?</th></tr>')
     return (f'<div class="table-wrap"><table><thead>{head}</thead><tbody>{"".join(body)}</tbody></table></div>'
             f'<p class="table-note">A rule-based label, not a statistical confidence. Strong: {STRONG_MIN_ALIGNED_MONTHS}+ '
             f'of 12 months move with the trend; mixed: {MIXED_MIN_ALIGNED_MONTHS}–{STRONG_MIN_ALIGNED_MONTHS - 1}; '
-            f'weak: fewer. A trend that is no longer outside ±{FLAT_BAND_PCT:g}% without its biggest contributing '
-            'month drops one level.</p>')
+            'weak: fewer. The largest contributor to change is the month whose year-over-year change moved the '
+            f'12-month total most, not necessarily the busiest month; if the change is no longer outside ±{FLAT_BAND_PCT:g}% '
+            'without it, the label drops one level.</p>')
 
 
 def warnings_list(result):
@@ -828,8 +834,7 @@ LANGUAGE_HINT = ("Use Wikipedia subdomain codes, e.g. pl for pl.wikipedia.org "
                  "(Norwegian Bokmål is 'no', Chinese is 'zh').")
 NETWORK_HINT = "Check outbound HTTPS access to *.wikipedia.org, www.wikidata.org and wikimedia.org, then retry."
 LIMITATIONS = [
-    "Wikipedia pageviews measure attention to one article: a proxy for interest in the topic, "
-    "not purchase intent, market size or demand.",
+    "Wikipedia pageviews are a proxy for attention to the topic, not market size, demand, or purchase intent.",
     "One article (Wikidata item) stands in for a broader topic, and its articles can differ in scope "
     "and depth between languages.",
     "A language edition is not a country or a market; for example, English Wikipedia is read worldwide, "

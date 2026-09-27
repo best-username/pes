@@ -164,7 +164,7 @@ class RealSeriesTests(unittest.TestCase):
         r = self.r
         self.assertEqual((r["previous_12m_project_views"], r["latest_12m_project_views"]), (816011502, 713223504))
         self.assertEqual(r["project_growth_pct"], -12.6)
-        self.assertEqual((r["previous_topic_views_per_million"], r["latest_topic_views_per_million"]), (5.81, 3.082))
+        self.assertEqual((r["previous_topic_views_per_million"], r["latest_topic_views_per_million"]), (5.81, 3.08))
         self.assertEqual(r["topic_share_growth_pct"], -47.0)  # growth minus project growth would be -41.0
         self.assertEqual(self.warnings, set())
 
@@ -264,6 +264,11 @@ class ProjectBaselineTests(unittest.TestCase):
         self.assertEqual((r["growth_pct"], r["project_growth_pct"]), (20.0, -20.0))
         self.assertEqual((r["previous_topic_views_per_million"], r["latest_topic_views_per_million"]), (100.0, 150.0))
         self.assertEqual(r["topic_share_growth_pct"], 50.0)  # growth minus project growth would be 40.0
+
+    def test_views_per_million_have_two_decimals_from_one_upward_and_three_below(self):
+        # 133.177 reads like the integer 133,177; 133.18 cannot
+        for raw, published in ((133.177, 133.18), (3.082, 3.08), (0.799, 0.799), (0.103, 0.103), (None, None)):
+            self.assertEqual(wi.rnd_per_million(raw), published)
 
     def test_change_that_mirrors_the_whole_wiki_is_flagged(self):
         r, warnings = metrics([100] * 12 + [90] * 12, [1_000_000] * 12 + [900_000] * 12)
@@ -658,7 +663,7 @@ class ReportTests(CommandTestCase):
         self.assertNotIn("<img src=x", page)
         self.assertIn("&lt;script&gt;alert", page)
         self.assertIn("fasting &amp; &lt;b&gt;bold&lt;/b&gt; claims", page)
-        self.assertIn("not purchase intent, market size or demand", page)
+        self.assertIn("a proxy for attention to the topic, not market size, demand, or purchase intent", page)
 
     def test_flat_trend_renders_as_not_applicable(self):
         article = article_items(2024, 9, [100] * 12 + [102] * 12)
@@ -666,6 +671,14 @@ class ReportTests(CommandTestCase):
                               article=article)
         self.assertIn("not applicable", page)
         self.assertIn("+2.0%", page)
+
+    def test_views_per_million_in_the_report_match_the_json(self):
+        article = article_items(2024, 9, [799] * 12 + [133177] * 12)
+        result, page = self.report(qid="Q1666254", languages=["cs"], article=article,
+                                   aggregate=project_items(2024, 8, [1_000_000_000] * 25))
+        r = result["results"][0]
+        self.assertEqual((r["previous_topic_views_per_million"], r["latest_topic_views_per_million"]), (0.799, 133.18))
+        self.assertIn("0.799 → 133.18", page)
 
     def test_a_report_failure_does_not_lose_the_analysis(self):
         with mock.patch.object(wi, "render_report", side_effect=RuntimeError("boom")):
