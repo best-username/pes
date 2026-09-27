@@ -288,6 +288,19 @@ class WarningTests(unittest.TestCase):
         self.assertNotIn("possible_history_discontinuity", metrics([400, 300] + [1000] * 22)[1])
 
 
+class IndexTests(unittest.TestCase):
+    def test_index_is_relative_to_the_previous_12_month_average(self):
+        # previous 12 months average 100 (50 and 150 alternating), so index == views
+        self.assertEqual(wi.index_series([50, 150] * 6 + [120] * 12), [50.0, 150.0] * 6 + [120.0] * 12)
+        self.assertEqual(wi.index_series([200] * 12 + [100] * 12)[-1], 50.0)
+        # 36 months: the baseline is the previous 12 months (100), not the first 12 (10)
+        self.assertEqual(wi.index_series([10] * 12 + [100] * 12 + [120] * 12)[-1], 120.0)
+
+    def test_no_index_without_a_complete_nonzero_previous_12_months(self):
+        self.assertIsNone(wi.index_series([None] + [100] * 23))
+        self.assertIsNone(wi.index_series([0] * 12 + [100] * 12))
+
+
 class MessageTests(unittest.TestCase):
     def test_long_month_lists_are_summarized_without_trailing_ellipsis(self):
         self.assertEqual(wi.summarize(["2024-09", "2024-10"]), "2024-09, 2024-10")
@@ -561,7 +574,8 @@ class AnalyzeCommandTests(CommandTestCase):
         self.assertEqual(rows[0], ["language", "article", "month", "views", "project_views"])
         self.assertEqual(rows[1], ["cs", "Přerušovaný půst", "2024-09", "393", "62292789"])
         self.assertEqual(len(rows), 25)
-        self.assertEqual(result["artifacts"], {"result": str(self.out / "result.json"), "data": str(self.out / "monthly.csv")})
+        self.assertEqual(result["artifacts"], {"result": str(self.out / "result.json"), "data": str(self.out / "monthly.csv"),
+                                               "report": str(self.out / "report.html")})
 
     def test_window_moves_back_a_month_when_the_last_one_is_not_published_yet(self):
         aggregate = project_items(2024, 8, [1_000_000] * 24)            # ends 2026-07: 2026-08 not published
@@ -608,6 +622,58 @@ class AnalyzeCommandTests(CommandTestCase):
     def test_default_output_folder_is_named_after_the_analysis_and_path_safe(self):
         self.assertEqual(wi.default_output_dir("Q1666254", ["pl", "cs", "evil.com/x"], month("2024-09"), month("2026-08")),
                          Path("wiki-interest-output/Q1666254_cs-pl_2024-09_2026-08"))
+
+
+class ReportTests(CommandTestCase):
+    def report(self, entity=CS_ENTITY, **kwargs):
+        result = self.analyze(entity, **kwargs)
+        return result, (self.out / "report.html").read_text(encoding="utf-8")
+
+    def test_partial_analysis_reports_the_available_language_and_marks_the_missing_one(self):
+        result, page = self.report(qid="Q1666254", languages=["pl", "cs"])
+        self.assertEqual(result["status"], "partial")
+        self.assertIn("Monthly Wikipedia article pageviews", page)  # one usable language: absolute chart
+        self.assertIn("No article", page)
+        self.assertIn("pl.wikipedia.org", page)
+        self.assertIn("−53.6%", page)  # negative growth, typographic minus
+
+    def test_multi_language_report_uses_the_indexed_chart(self):
+        result, page = self.report(UK_CS_ENTITY, qid="Q1666254", languages=["cs", "uk"])
+        self.assertEqual(result["status"], "ok")
+        self.assertIn("Indexed trend: 100 = each language's average monthly article views during the previous "
+                      "12 months. Use the metrics table for absolute audience size.", page)
+
+    def test_report_is_self_contained(self):
+        _, page = self.report(qid="Q1666254", languages=["cs"])
+        self.assertIn("<svg", page)
+        for dependency in ("<script", "<link", "src=", "@import", "url("):
+            self.assertNotIn(dependency, page)
+
+    def test_user_and_api_text_is_escaped_and_assumptions_and_limitations_appear(self):
+        entity = {"entities": {"Q1666254": {**CS_ENTITY["entities"]["Q1666254"], "sitelinks": {
+            "cswiki": {"site": "cswiki", "title": "<img src=x onerror=alert(1)>", "badges": []}}}}, "success": 1}
+        _, page = self.report(entity, qid="Q1666254", languages=["cs"], topic="<script>alert('topic')</script>",
+                              assumptions=["fasting & <b>bold</b> claims"])
+        self.assertNotIn("<script>alert", page)
+        self.assertNotIn("<img src=x", page)
+        self.assertIn("&lt;script&gt;alert", page)
+        self.assertIn("fasting &amp; &lt;b&gt;bold&lt;/b&gt; claims", page)
+        self.assertIn("not purchase intent, market size or demand", page)
+
+    def test_flat_trend_renders_as_not_applicable(self):
+        article = article_items(2024, 9, [100] * 12 + [102] * 12)
+        _, page = self.report(qid="Q1666254", languages=["cs"], aggregate=project_items(2024, 8, [1_000_000] * 25),
+                              article=article)
+        self.assertIn("not applicable", page)
+        self.assertIn("+2.0%", page)
+
+    def test_a_report_failure_does_not_lose_the_analysis(self):
+        with mock.patch.object(wi, "render_report", side_effect=RuntimeError("boom")):
+            result = self.analyze(CS_ENTITY, qid="Q1666254", languages=["cs"])
+        self.assertIsNone(result["artifacts"]["report"])
+        self.assertIn("report_failed", [w["code"] for w in result["warnings"]])
+        self.assertEqual(json.loads((self.out / "result.json").read_text(encoding="utf-8")), result)
+        self.assertFalse((self.out / "report.html").exists())
 
 
 class ResolveCommandTests(CommandTestCase):
