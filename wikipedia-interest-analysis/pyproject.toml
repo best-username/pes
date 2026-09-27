@@ -1,0 +1,6 @@
+[project]
+name = "wikipedia-interest-analysis"
+version = "0.1.0"
+description = "Agent Skill: analyze topic-interest trends from Wikipedia pageviews"
+requires-python = ">=3.12"
+dependencies = []
