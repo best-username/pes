@@ -1,0 +1,61 @@
+{
+ "winner_id": "W012",
+ "market": "US",
+ "winner": {
+  "hook": "I have a sock graveyard in my laundry room.",
+  "first_line": "A whole basket of socks with no partner.",
+  "on_screen": "My sock graveyard | 31 singles",
+  "body": "Then I switched to socks with a tiny magnet on the cuffs. Snap the pair together before the wash, and they come out together. No more sorting, no more singles.",
+  "cta": "Take the 30-second quiz and get your first five pairs."
+ },
+ "variants": [
+  {
+   "hook": "Where do the missing socks go?",
+   "first_line": "Nobody knows, but I fixed it.",
+   "on_screen": "My sock graveyard | 31 singles",
+   "body": "Then I switched to socks with a tiny magnet on the cuffs. Snap the pair together before the wash, and they come out together. No more sorting, no more singles.",
+   "cta": "Take the 30-second quiz and get your first five pairs.",
+   "rationale": "Rewrote the opening."
+  },
+  {
+   "hook": "Matching pairs guaranteed, every single wash.",
+   "first_line": "A whole basket of socks with no partner.",
+   "on_screen": "My sock graveyard | 31 singles",
+   "body": "Then I switched to socks with a tiny magnet on the cuffs. Snap the pair together before the wash, and they come out together. No more sorting, no more singles.",
+   "cta": "Take the 30-second quiz and get your first five pairs.",
+   "rationale": "Stronger promise."
+  },
+  {
+   "hook": "Where do the missing socks actually go?",
+   "first_line": "A whole basket of socks with no partner.",
+   "on_screen": "My sock graveyard | 31 singles",
+   "body": "Then I switched to socks with a tiny magnet on the cuffs. Snap the pair together before the wash, and they come out together. No more sorting, no more singles.",
+   "cta": "Take the 30-second quiz and get your first five pairs.",
+   "rationale": "Question lever."
+  },
+  {
+   "hook": "Where do missing socks actually go?",
+   "first_line": "A whole basket of socks with no partner.",
+   "on_screen": "My sock graveyard | 31 singles",
+   "body": "Then I switched to socks with a tiny magnet on the cuffs. Snap the pair together before the wash, and they come out together. No more sorting, no more singles.",
+   "cta": "Take the 30-second quiz and get your first five pairs.",
+   "rationale": "Question lever, again."
+  },
+  {
+   "hook": "I have a sock graveyard in my laundry room.",
+   "first_line": "A whole basket of socks with no partner.",
+   "on_screen": "Thirty-one lonely socks in my laundry basket",
+   "body": "Then I switched to socks with a tiny magnet on the cuffs. Snap the pair together before the wash, and they come out together. No more sorting, no more singles.",
+   "cta": "Take the 30-second quiz and get your first five pairs.",
+   "rationale": "Number on screen."
+  },
+  {
+   "hook": "My sock basket is a crime scene.",
+   "first_line": "A whole basket of socks with no partner.",
+   "on_screen": "My sock graveyard | 31 singles",
+   "body": "Then I switched to socks with a tiny magnet on the cuffs. Snap the pair together before the wash, and they come out together. No more sorting, no more singles.",
+   "cta": "Take the 30-second quiz and get your first five pairs.",
+   "rationale": ""
+  }
+ ]
+}

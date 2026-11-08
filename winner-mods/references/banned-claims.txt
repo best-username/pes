@@ -1,0 +1,17 @@
+# Phrases the ads must not contain (case-insensitive substring match). One per line.
+# Meta ad policy and honest-claims rules: no guarantees the product cannot keep, no health claims,
+# no fake scarcity, no personal-attribute targeting ("you" + a condition).
+guaranteed
+100%
+never lose a sock again, guaranteed
+lifetime
+cure
+heal
+doctor recommended
+clinically proven
+free socks
+only today
+last chance
+limited stock
+are you divorced
+are you depressed

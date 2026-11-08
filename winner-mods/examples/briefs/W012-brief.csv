@@ -1,0 +1,11 @@
+mod_id,ad_name,element,before,after,rationale
+W012-M001,SL_US_W012-M001_hook_ai,hook,I have a sock graveyard in my laundry room.,31 socks. Zero partners. One laundry room.,Number lever: a concrete count makes the loss feel real.
+W012-M002,SL_US_W012-M002_hook_ai,hook,I have a sock graveyard in my laundry room.,Where do the missing socks actually go?,Question lever: an open loop the viewer wants closed.
+W012-M003,SL_US_W012-M003_hook_ai,hook,I have a sock graveyard in my laundry room.,Laundry's done. Now the sock hunt begins.,Scene lever: the moment every parent recognises.
+W012-M004,SL_US_W012-M004_hook_ai,hook,I have a sock graveyard in my laundry room.,My washing machine is a sock black hole.,"Contrast lever: ordinary object, absurd outcome."
+W012-M005,SL_US_W012-M005_hook_ai,hook,I have a sock graveyard in my laundry room.,The washer ate my socks. Again.,Viewer's own words: the phrase people use in comments.
+W012-M006,SL_US_W012-M006_first_line_ai,first_line,A whole basket of socks with no partner.,I spent twenty minutes matching them last Sunday.,Time cost lever: makes the pain measurable.
+W012-M007,SL_US_W012-M007_first_line_ai,first_line,A whole basket of socks with no partner.,I keep buying new packs just to get pairs.,Money lever: lost singles mean buying new packs.
+W012-M008,SL_US_W012-M008_first_line_ai,first_line,A whole basket of socks with no partner.,Everyone in my house just blames the dryer.,Identity lever: shared household pain.
+W012-M009,SL_US_W012-M009_on_screen_ai,on_screen,My sock graveyard | 31 singles,31 singles | 0 pairs,Big number on screen: stops the scroll before the voiceover lands.
+W012-M010,SL_US_W012-M010_on_screen_ai,on_screen,My sock graveyard | 31 singles,Where do the socks go? | I found out,Question on screen: mirrors the viewer's own thought.

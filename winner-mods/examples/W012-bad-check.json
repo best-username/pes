@@ -1,0 +1,53 @@
+{
+  "status": "issues",
+  "variants": 6,
+  "with_issues": 5,
+  "results": [
+    {
+      "variant": 1,
+      "element": null,
+      "text": "",
+      "issues": [
+        "must change exactly one element, changed 2: hook, first_line"
+      ]
+    },
+    {
+      "variant": 2,
+      "element": "hook",
+      "text": "Matching pairs guaranteed, every single wash.",
+      "issues": [
+        "banned claim: \"guaranteed\""
+      ]
+    },
+    {
+      "variant": 3,
+      "element": "hook",
+      "text": "Where do the missing socks actually go?",
+      "issues": []
+    },
+    {
+      "variant": 4,
+      "element": "hook",
+      "text": "Where do missing socks actually go?",
+      "issues": [
+        "near-duplicate of variant 3: \"Where do the missing socks actually go?\""
+      ]
+    },
+    {
+      "variant": 5,
+      "element": "on_screen",
+      "text": "Thirty-one lonely socks in my laundry basket",
+      "issues": [
+        "on-screen line over 40 chars: \"Thirty-one lonely socks in my laundry basket\""
+      ]
+    },
+    {
+      "variant": 6,
+      "element": "hook",
+      "text": "My sock basket is a crime scene.",
+      "issues": [
+        "rationale is empty: say what changed and why it may win"
+      ]
+    }
+  ]
+}
